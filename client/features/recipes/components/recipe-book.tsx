@@ -4,6 +4,7 @@ import type { Recipe } from "@common/modules/recipes";
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/features/auth/components/sign-out";
 import { newId } from "@/lib/id";
 import { cn } from "@/lib/utils";
 import { createRecipe, deleteRecipe, updateRecipe } from "../api";
@@ -141,7 +142,10 @@ export function RecipeBook({ initialRecipes }: { initialRecipes: Recipe[] | null
 
   return (
     <main className="relative flex min-h-0 flex-1 flex-col justify-center overflow-hidden pt-3 pb-1">
-      <ThemeToggle className="absolute top-3 right-4 z-10" />
+      <div className="absolute top-3 right-4 z-10 flex items-center gap-1.5">
+        <ThemeToggle />
+        <SignOutButton />
+      </div>
       <h1 className="px-6 text-center font-display text-[length:clamp(28px,min(6vw,6dvh),52px)] leading-[1.1] font-bold tracking-[-0.6px]">
         Recipe Book
       </h1>

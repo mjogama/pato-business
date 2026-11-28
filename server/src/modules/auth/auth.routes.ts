@@ -22,6 +22,8 @@ export class AuthRouter {
   constructor(controller: AuthController) {
     this.router.post("/login", loginLimiter(), validate(loginSchemas), controller.login);
     this.router.post("/refresh", controller.refresh);
+    this.router.post("/logout", controller.logout);
+    this.router.post("/logout-all", requireAuth, controller.logoutEverywhere);
     this.router.get("/me", requireAuth, controller.me);
   }
 }

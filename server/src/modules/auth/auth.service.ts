@@ -18,8 +18,8 @@ const toUser = ({ id, username }: UserRecord): AuthUser => ({ id, username });
 
 const toSession = (record: UserRecord): Session => ({
   user: toUser(record),
-  accessToken: signToken("access", record.id),
-  refreshToken: signToken("refresh", record.id),
+  accessToken: signToken("access", record.id, record.tokenVersion),
+  refreshToken: signToken("refresh", record.id, record.tokenVersion),
 });
 
 export class AuthService {
@@ -32,10 +32,17 @@ export class AuthService {
     return toSession(record);
   }
 
+  /** A new session from a refresh token, unless it was issued before the last "sign out everywhere". */
   async refresh(refreshToken: string): Promise<Session> {
-    const record = await this.repository.findById(verifyToken("refresh", refreshToken));
-    if (!record) throw new UnauthorizedError("Invalid or expired session");
+    const { userId, version } = verifyToken("refresh", refreshToken);
+    const record = await this.repository.findById(userId);
+    if (!record || record.tokenVersion !== version) throw new UnauthorizedError("Invalid or expired session");
     return toSession(record);
+  }
+
+  /** Ends every session of this user, on every device. */
+  async logoutEverywhere(userId: string): Promise<void> {
+    await this.repository.bumpTokenVersion(userId);
   }
 
   async me(userId: string): Promise<AuthUser> {

@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { SignOutButton } from "@/features/auth/components/sign-out";
 import { formatPeso } from "@/features/sales-tracker/lib/money";
 import { groupByDay } from "@/features/sales-tracker/lib/totals";
 import type { DayKey, SalesEntry } from "@/features/sales-tracker/types";
@@ -84,7 +85,12 @@ export function Progress({
             .
           </p>
         </div>
-        {showThemeToggle && <ThemeToggle />}
+        {showThemeToggle && (
+          <div className="flex items-center gap-1.5">
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
+        )}
       </header>
 
       <ToggleGroup
