@@ -19,7 +19,7 @@ Paths are under `client/features/progress/`.
 | Top products bars | `components/top-products.tsx` | |
 | Tooltip, hover and keyboard, card frame, resize | `components/chart-parts.tsx` | Charts take focus; ← → Home End move the tooltip |
 | Chart colors | `--chart-1`, `--chart-2` in both theme blocks of `client/app/globals.css` | Re-check color-vision separation and ≥ 3:1 against `--card` in both modes |
-| Loading | `components/progress-loader.tsx`, `client/app/progress/page.tsx`, `client/app/cms/progress/page.tsx` | Renders inside `<Suspense>`; `null` entries shows "Couldn’t load sales" |
+| Loading | `components/progress-loader.tsx`, `client/app/progress/page.tsx`, `client/app/cms/progress/page.tsx` | Loads in the browser (`useLoad`; the route needs the session), the page passes a `fallback`; `null` entries shows "Couldn’t load sales" |
 
 ## Rules that must stay true
 

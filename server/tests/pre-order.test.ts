@@ -286,6 +286,14 @@ describe("pre-order routes", () => {
     ]);
   });
 
+  it("limits placed orders per IP (PRE_ORDER_RATE_LIMIT_MAX is 3 in tests)", async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 4; i++) statuses.push((await request(app).post("/api/v1/pre-orders").send({})).status);
+    expect(statuses.at(-1)).toBe(429);
+    const res = await request(app).post("/api/v1/pre-orders").send({});
+    expect(res.body).toMatchObject({ success: false, statusCode: 429 });
+  });
+
   it("validates owner requests", async () => {
     const cookie = authCookie();
     await request(app).get("/api/v1/pre-orders?status=lost").set("Cookie", cookie).expect(400);

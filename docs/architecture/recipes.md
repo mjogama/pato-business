@@ -15,7 +15,7 @@ Paths are under `client/features/recipes/` unless shown in full.
 | Formatting (temp, time, amounts) | `lib/format.ts` | Shared by the card and the modals |
 | Viewer (ingredients, steps, note, multiplier, delete) | `components/recipe-modal.tsx` | |
 | Editor (fields, rows, reorder) | `components/recipe-edit-modal.tsx`, `components/edit-fields.tsx` | Server Zod schema if a rule changes |
-| Loading per request | `components/recipe-book-loader.tsx`, `client/app/recipes/page.tsx` | Renders inside `<Suspense>` |
+| Loading per request | `components/recipe-book-loader.tsx`, `client/app/recipes/page.tsx` | Loads in the browser (`useLoad`; the route needs the session); the page passes a `fallback` |
 | API calls, error text | `api.ts`; error text from `apiErrorMessage()` in `client/lib/api/client.ts` | Failed calls throw, so a modal shows the error and stays open |
 | Cleaning API data | `lib/normalize.ts` | Always normalize: the server can send `null` for optional fields |
 | Colors | `client/app/globals.css` | Recipe tokens (`surface-spine`, `surface-chip`, `surface-new-card`, `surface-icon-tile`, `surface-ghost`, `foreground-ingredient`, `line-active`) exist in both theme blocks |

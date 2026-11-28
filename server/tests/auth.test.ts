@@ -52,13 +52,28 @@ describe("auth routes", () => {
     await request(app).get("/api/v1/auth/me").set("Cookie", "access_token=garbage").expect(401);
   });
 
-  it("protects the write routes but not the read routes", async () => {
+  it("protects every recipes and sales-entries route, reads included", async () => {
+    await request(app).get("/api/v1/recipes").expect(401);
+    await request(app).get(`/api/v1/recipes/${randomUUID()}`).expect(401);
     await request(app).post("/api/v1/recipes").send({}).expect(401);
     await request(app).put(`/api/v1/recipes/${randomUUID()}`).send({}).expect(401);
     await request(app).delete(`/api/v1/recipes/${randomUUID()}`).expect(401);
+    await request(app).get("/api/v1/sales-entries").expect(401);
+    await request(app).get("/api/v1/sales-entries/product-suggestions").expect(401);
+    await request(app).get(`/api/v1/sales-entries/${randomUUID()}`).expect(401);
     await request(app).post("/api/v1/sales-entries").send({}).expect(401);
     await request(app).delete(`/api/v1/sales-entries/${randomUUID()}`).expect(401);
-    await request(app).get("/api/v1/recipes/not-a-uuid").expect(400);
+  });
+
+  it("limits failed sign-ins per IP (LOGIN_RATE_LIMIT_MAX is 3 in tests)", async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 4; i++) {
+      statuses.push((await request(app).post("/api/v1/auth/login").send({ username: "pato" })).status);
+    }
+    expect(statuses.at(-1)).toBe(429);
+    const res = await request(app).post("/api/v1/auth/login").send({ username: "pato", password: "x" });
+    expect(res.status).toBe(429);
+    expect(res.body.message).toMatch(/sign-in attempts/);
   });
 
   it("lets a valid access cookie through", async () => {

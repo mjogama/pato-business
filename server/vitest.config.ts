@@ -21,6 +21,8 @@ export default defineConfig({
       BASE_URL: "http://localhost:3000",
       TRUST_PROXY: "false",
       RATE_LIMIT_MAX: "100",
+      LOGIN_RATE_LIMIT_MAX: "3",
+      PRE_ORDER_RATE_LIMIT_MAX: "3",
       JWT_ACCESS_SECRET: "test-access-secret-test-access-secret",
       JWT_REFRESH_SECRET: "test-refresh-secret-test-refresh-secret",
     },

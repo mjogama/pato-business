@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
 
 import { ProgressLoader } from "@/features/progress/components/progress-loader";
 
@@ -16,14 +15,13 @@ export const viewport: Viewport = {
 
 export default function ProgressPage() {
   return (
-    <Suspense
+    <ProgressLoader
+      showThemeToggle
       fallback={
         <main className="page-padding flex min-h-dvh flex-1 items-center justify-center text-label text-foreground-faint">
           Loading progress…
         </main>
       }
-    >
-      <ProgressLoader showThemeToggle />
-    </Suspense>
+    />
   );
 }

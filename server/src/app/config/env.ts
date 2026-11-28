@@ -11,6 +11,12 @@ const trustProxy = z
     return Number.isInteger(hops) && hops >= 0 ? hops : value;
   });
 
+/** A whole number of seconds. Blank or unset (`JWT_ACCESS_TTL_SECONDS=`) means no expiry. */
+const optionalSeconds = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.coerce.number().int().positive().optional(),
+);
+
 const originList = z
   .string()
   .min(1)
@@ -37,6 +43,10 @@ const envSchema = z.object({
     .positive()
     .default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
+  // Failed sign-ins per IP per 15 minutes (successful ones don't count).
+  LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
+  // Placed pre-orders per IP per hour.
+  PRE_ORDER_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   // Image uploads (Cloudinary). Without the three credentials, uploads answer 503.
   CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
   CLOUDINARY_API_KEY: z.string().min(1).optional(),
@@ -48,9 +58,9 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().min(1).optional(),
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
-  // Unset means the token never expires.
-  JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().optional(),
-  JWT_REFRESH_TTL_SECONDS: z.coerce.number().int().positive().optional(),
+  // Blank or unset means the token (and its cookie) never expires.
+  JWT_ACCESS_TTL_SECONDS: optionalSeconds,
+  JWT_REFRESH_TTL_SECONDS: optionalSeconds,
 });
 
 export type Env = z.infer<typeof envSchema>;

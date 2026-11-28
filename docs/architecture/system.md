@@ -26,7 +26,7 @@ scripts/               new-module.mjs, remove-module.mjs
 3. Module: `validate(schemas)` → controller → service → repository → Prisma.
 4. Envelope: `{ success: true, statusCode, message, data }` or `{ success: false, statusCode, status, message, details?, requestId? }` (`shared/http.ts`).
 
-`/recipes`, `/sales-tracker`, `/` and `/menu` use the server. Each server-backed page follows the same client shape: `features/<name>/api.ts` (calls), `lib/normalize.ts` (cleans responses), a `*-loader.tsx` server component inside `<Suspense>` that passes `null` on a failed load, and `apiErrorMessage()` for error text.
+`/recipes`, `/sales-tracker`, `/` and `/menu` use the server. Each server-backed page follows the same client shape: `features/<name>/api.ts` (calls), `lib/normalize.ts` (cleans responses), a `*-loader.tsx` that passes `null` on a failed load (a server component inside `<Suspense>` for public data; a client component using `useLoad` with a `fallback` prop for owner data, since only the browser has the session cookies), and `apiErrorMessage()` for error text.
 
 ## Environment and deployment
 
