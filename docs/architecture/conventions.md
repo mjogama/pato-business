@@ -6,7 +6,7 @@
 - **Env vars:** add to `server/src/app/config/env.ts` or `client/lib/env.ts` plus the `.env.example`; test values in `server/vitest.config.ts`.
 - **Imports:** in `server/src/`, packages, a blank line, then project files, each group shortest line first (`npm run imports`). Biome sorts the rest.
 - **Never** commit `.env*` (except `.env.example`), `server/src/generated` or `.claude/worktrees/`; never write to the production database without the owner's approval or print its credentials.
-- **Commits:** use `/commit` (feature branch, never pushes to `main`).
+- **Commits:** use `/commit` (feature branch, never pushes to `main`). Name branches `<type>/<name>` with no GitHub username, e.g. `feat/recipe-search`, `fix/owner-data-security` (types: `feat`, `fix`, `chore`, `docs`).
 - **Done** means `npm run check` passes from the root.
 
 ## Adding a feature

@@ -17,9 +17,12 @@ const valid = {
 // Only requests that fail validation, so these tests never write to the database.
 describe("sales entry module", () => {
   it("rejects invalid params and query", async () => {
-    await request(app).get("/api/v1/sales-entries/not-a-uuid").expect(400);
-    await request(app).get("/api/v1/sales-entries?from=2026-13-01").expect(400);
-    await request(app).get("/api/v1/sales-entries?from=2026-11-30&to=2026-11-01").expect(400);
+    await request(app).get("/api/v1/sales-entries/not-a-uuid").set("Cookie", authCookie()).expect(400);
+    await request(app).get("/api/v1/sales-entries?from=2026-13-01").set("Cookie", authCookie()).expect(400);
+    await request(app)
+      .get("/api/v1/sales-entries?from=2026-11-30&to=2026-11-01")
+      .set("Cookie", authCookie())
+      .expect(400);
     await request(app).delete("/api/v1/sales-entries/not-a-uuid").set("Cookie", authCookie()).expect(400);
   });
 

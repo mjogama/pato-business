@@ -18,7 +18,7 @@ Paths are under `client/features/sales-tracker/`.
 | Entry form (fields, suggestions, placement, saving state) | `components/entry-popover.tsx` | `PHONE_QUERY` (< 640px), `ANCHOR_QUERY` (≥ 720px) in `hooks/use-environment.ts`. Fields are filled cards (`bg-surface-field`) with placeholders only (labels are `sr-only`); product rows stack at every width; popover width is `--spacing-popover` (320px) |
 | Validation rules and messages | `lib/validation.ts` | Mirror any rule change in `sales-entry.schema.ts` on the server |
 | Money format and rounding | `lib/money.ts` | Sums in centavos |
-| Loading per request | `components/sales-tracker-loader.tsx`, `client/app/sales-tracker/page.tsx` | Renders inside `<Suspense>`; `null` entries shows "Couldn’t load sales" |
+| Loading per request | `components/sales-tracker-loader.tsx`, `client/app/sales-tracker/page.tsx` | Loads in the browser (`useLoad`; the route needs the session), the page passes a `fallback`; `null` entries shows "Couldn’t load sales" |
 | Saving, deleting, suggestions refresh | `saveEntry` / `removeEntry` in `components/sales-tracker.tsx` | Failed calls throw, so the popover shows the error and stays open |
 | API calls | `api.ts` | Error text from `apiErrorMessage()` in `client/lib/api/client.ts` |
 | Cleaning API data | `lib/normalize.ts` | Drops entries without an id or a valid date |

@@ -18,7 +18,8 @@ export type ValidatedRequest<S extends RequestSchemas> = Request<
   Parsed<S, "query", Record<string, unknown>>
 >;
 
-type AnyRequestHandler = RequestHandler<any, any, any, any>;
+/** Fits before any handler, whatever its validated params, body and query types. */
+export type AnyRequestHandler = RequestHandler<any, any, any, any>;
 
 export const validate =
   (schemas: RequestSchemas): AnyRequestHandler =>
