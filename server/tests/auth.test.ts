@@ -2,17 +2,21 @@ import { randomUUID } from "node:crypto";
 
 import { createApp } from "@app/app";
 import { AuthModule } from "@modules/auth/auth.module";
-import { signToken } from "@shared/auth/tokens";
+import { currentTokenVersion } from "@shared/auth/session";
+import { signToken, verifyToken } from "@shared/auth/tokens";
 import bcrypt from "bcryptjs";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { authCookie } from "./helpers";
 
-const user = { id: randomUUID(), username: "pato", passwordHash: bcrypt.hashSync("secret-pass", 4) };
+const user = { id: randomUUID(), username: "pato", passwordHash: bcrypt.hashSync("secret-pass", 4), tokenVersion: 0 };
 
 const repository = {
   findByUsername: async (username: string) => (username === user.username ? user : null),
   findById: async (id: string) => (id === user.id ? user : null),
+  bumpTokenVersion: async (id: string) => {
+    if (id === user.id) user.tokenVersion += 1;
+  },
 };
 
 const service = new AuthModule({ repository }).service;
@@ -36,6 +40,16 @@ describe("auth service", () => {
     expect((await service.refresh(session.refreshToken)).user.id).toBe(user.id);
     await expect(service.refresh(session.accessToken)).rejects.toMatchObject({ statusCode: 401 });
     await expect(service.refresh(signToken("refresh", randomUUID()))).rejects.toMatchObject({ statusCode: 401 });
+  });
+
+  it("signing out everywhere ends sessions issued before it", async () => {
+    const before = await service.login({ username: "pato", password: "secret-pass" });
+    await service.logoutEverywhere(user.id);
+    await expect(service.refresh(before.refreshToken)).rejects.toMatchObject({ statusCode: 401 });
+
+    const after = await service.login({ username: "pato", password: "secret-pass" });
+    expect(verifyToken("access", after.accessToken).version).toBe(user.tokenVersion);
+    expect((await service.refresh(after.refreshToken)).user.id).toBe(user.id);
   });
 });
 
@@ -78,5 +92,22 @@ describe("auth routes", () => {
 
   it("lets a valid access cookie through", async () => {
     await request(app).post("/api/v1/recipes").set("Cookie", authCookie()).send({}).expect(400);
+  });
+
+  it("refuses an access cookie from before the last sign-out everywhere", async () => {
+    vi.mocked(currentTokenVersion).mockResolvedValueOnce(1);
+    await request(app).post("/api/v1/recipes").set("Cookie", authCookie()).send({}).expect(401);
+  });
+
+  it("signs out by clearing both cookies, with or without a session", async () => {
+    const res = await request(app).post("/api/v1/auth/logout").expect(200);
+    const cookies = ([] as string[]).concat(res.headers["set-cookie"] ?? []);
+    expect(cookies.some((c) => c.startsWith("access_token=;") && c.includes("Path=/;"))).toBe(true);
+    expect(cookies.some((c) => c.startsWith("refresh_token=;") && c.includes("Path=/api/v1/auth"))).toBe(true);
+    expect(cookies.every((c) => c.includes("Expires=Thu, 01 Jan 1970"))).toBe(true);
+  });
+
+  it("needs a session to sign out everywhere", async () => {
+    await request(app).post("/api/v1/auth/logout-all").expect(401);
   });
 });

@@ -3,3 +3,4 @@ node_modules
 .neon
 .env.local
 .claude/worktrees/
+SUGGESTIONS.md

@@ -122,6 +122,8 @@ model User {
   id           String   @id @default(uuid(7))
   username     String   @unique @db.VarChar(60)
   passwordHash String
+  /// Bumped by "sign out everywhere"; tokens signed with an older value stop working.
+  tokenVersion Int      @default(0)
   createdAt    DateTime @default(now()) @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @db.Timestamptz(3)
 

@@ -47,30 +47,26 @@ export const refreshSession = (): Promise<boolean> => {
   return refreshing;
 };
 
-/** Sends a file as multipart form data (axios sets the boundary). A 401 is refreshed and retried once. */
-const upload = async <T>(path: string, form: FormData): Promise<T> => {
+/** Runs an owner call; a 401 is refreshed and retried once, and if that fails the owner goes to the login page. */
+const withSession = async <T>(run: () => Promise<T>): Promise<T> => {
   try {
-    return await call<T>("post", path, form);
+    return await run();
   } catch (error) {
     if ((error as { statusCode?: number }).statusCode !== 401) throw error;
-    if (await refreshSession()) return call<T>("post", path, form);
+    if (await refreshSession()) return run();
     redirectToLogin();
     throw error;
   }
 };
 
-/** Auth calls. A 401 from `/auth/me` is refreshed and retried once; if that fails the owner goes to the login page. */
+/**
+ * Auth calls. `post` is plain (a 401 from login means a wrong password). `get`, `postAsOwner` and `upload`
+ * refresh a stale session once and retry; if that fails the owner goes to the login page.
+ */
 export const authClient = {
   post: <T>(path: string, body?: unknown) => call<T>("post", path, body),
-  upload,
-  async get<T>(path: string): Promise<T> {
-    try {
-      return await call<T>("get", path);
-    } catch (error) {
-      if ((error as { statusCode?: number }).statusCode !== 401) throw error;
-      if (await refreshSession()) return call<T>("get", path);
-      redirectToLogin();
-      throw error;
-    }
-  },
+  postAsOwner: <T>(path: string, body?: unknown) => withSession(() => call<T>("post", path, body)),
+  /** Sends a file as multipart form data (axios sets the boundary). */
+  upload: <T>(path: string, form: FormData) => withSession(() => call<T>("post", path, form)),
+  get: <T>(path: string) => withSession(() => call<T>("get", path)),
 };

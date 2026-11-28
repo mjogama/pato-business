@@ -20,6 +20,7 @@ import { type ReactNode, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { SidebarSignOut } from "@/features/auth/components/sign-out";
 import { cn } from "@/lib/utils";
 
 const PAGES = [
@@ -173,6 +174,7 @@ const SidebarContent = ({
           View site
         </span>
       </a>
+      <SidebarSignOut collapsed={collapsed} />
     </div>
   );
 };

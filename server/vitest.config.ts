@@ -14,6 +14,7 @@ export default defineConfig({
   },
   test: {
     include: ["tests/**/*.test.ts"],
+    setupFiles: ["tests/setup.ts"],
     // Tests never read your real .env: these win over it.
     env: {
       NODE_ENV: "test",

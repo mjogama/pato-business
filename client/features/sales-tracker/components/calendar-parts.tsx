@@ -3,6 +3,7 @@ import type { KeyboardEvent, MouseEvent } from "react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card } from "@/components/ui/card";
+import { SignOutButton } from "@/features/auth/components/sign-out";
 import type { YearMonth } from "../lib/dates";
 import { MONTH_NAMES, monthGrid, WEEKDAYS } from "../lib/dates";
 import { holidayOf } from "../lib/holidays";
@@ -40,6 +41,7 @@ export const TitleRow = ({
     <div className="flex items-center gap-3 max-lg:contents">
       <div className="flex flex-none items-center gap-1.5">
         <ThemeToggle />
+        <SignOutButton />
         <nav aria-label="Month" className="flex flex-none items-center gap-1.5">
           <IconButton aria-label="Previous month" onClick={onPrev}>
             <ChevronLeftIcon />

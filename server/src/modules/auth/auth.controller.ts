@@ -20,9 +20,20 @@ const cookieOptions = (ttlSeconds: number | undefined, path: string): CookieOpti
   maxAge: ttlSeconds ? ttlSeconds * 1000 : TEN_YEARS_MS,
 });
 
+const ACCESS_PATH = "/";
+const REFRESH_PATH = "/api/v1/auth";
+
 const setSessionCookies = (res: Response, { accessToken, refreshToken }: Session) => {
-  res.cookie(ACCESS_COOKIE, accessToken, cookieOptions(env.JWT_ACCESS_TTL_SECONDS, "/"));
-  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions(env.JWT_REFRESH_TTL_SECONDS, "/api/v1/auth"));
+  res.cookie(ACCESS_COOKIE, accessToken, cookieOptions(env.JWT_ACCESS_TTL_SECONDS, ACCESS_PATH));
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions(env.JWT_REFRESH_TTL_SECONDS, REFRESH_PATH));
+};
+
+/** Clearing needs the same path, `SameSite` and `Secure` as when the cookie was set, or the browser keeps it. */
+const clearSessionCookies = (res: Response) => {
+  const { maxAge: _access, ...access } = cookieOptions(undefined, ACCESS_PATH);
+  const { maxAge: _refresh, ...refresh } = cookieOptions(undefined, REFRESH_PATH);
+  res.clearCookie(ACCESS_COOKIE, access);
+  res.clearCookie(REFRESH_COOKIE, refresh);
 };
 
 export class AuthController {
@@ -40,6 +51,19 @@ export class AuthController {
     const session = await this.service.refresh(token);
     setSessionCookies(res, session);
     sendSuccess(res, { message: "Session refreshed", data: session.user });
+  };
+
+  /** Signs out this browser. Always succeeds, even without a session. */
+  logout = async (_req: Request, res: Response) => {
+    clearSessionCookies(res);
+    sendSuccess(res, { message: "Signed out", data: null });
+  };
+
+  /** Signs out every device, this one included. */
+  logoutEverywhere = async (req: Request, res: Response) => {
+    await this.service.logoutEverywhere(req.userId as string);
+    clearSessionCookies(res);
+    sendSuccess(res, { message: "Signed out everywhere", data: null });
   };
 
   me = async (req: Request, res: Response) => {
